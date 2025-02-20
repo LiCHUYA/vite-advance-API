@@ -21,7 +21,6 @@ export default defineConfig({
         "vite",
       ],
     },
-    sourcemap: true,
     minify: "esbuild",
   },
   plugins: [dts()],

@@ -54,9 +54,9 @@ function createRouterDefiner(
   };
 }
 
-export function createAdvanceApi(options: CreateAdvanceApiOptions) {
+export function createAdvanceApi(options: CreateAdvanceApiOptions = {}) {
   const router = express.Router();
-  const globalBase = options.base || "";
+  const globalBase = options.base || "/";
   const apiPrefix = options.prefix || "/api";
 
   const utils: Utils = {
@@ -79,28 +79,30 @@ export function createAdvanceApi(options: CreateAdvanceApiOptions) {
     router[method](path, (req, res) => handler(req, new CommonResponse(res)));
   });
 
-  // 注册所有模块
-  const modules = options.setup(utils);
-  modules.forEach((module) => {
-    const fullBasePath = `${globalBase}${module.base}`;
+  // 只有在提供了setup函数时才注册用户模块
+  if (options.setup) {
+    const modules = options.setup(utils);
+    modules.forEach((module) => {
+      const fullBasePath = `${globalBase}${module.base}`;
 
-    switch (module.type) {
-      case "object":
-        // 对象模式
-        module.apis.forEach(({ path, method, handler }) => {
-          router[method](`${fullBasePath}${path}`, (req, res) =>
-            handler(req, new CommonResponse(res))
-          );
-        });
-        break;
+      switch (module.type) {
+        case "object":
+          // 对象模式
+          module.apis.forEach(({ path, method, handler }) => {
+            router[method](`${fullBasePath}${path}`, (req, res) =>
+              handler(req, new CommonResponse(res))
+            );
+          });
+          break;
 
-      case "direct":
-        // 直接路由模式
-        const routerDefiner = createRouterDefiner(router, fullBasePath);
-        module.setup(routerDefiner);
-        break;
-    }
-  });
+        case "direct":
+          // 直接路由模式
+          const routerDefiner = createRouterDefiner(router, fullBasePath);
+          module.setup(routerDefiner);
+          break;
+      }
+    });
+  }
 
   return {
     name: "vite-advance-api",
@@ -130,10 +132,27 @@ export function createAdvanceApi(options: CreateAdvanceApiOptions) {
 
       // 添加友好的启动提示
       console.log("\n🚀 Vite Advance API 插件已启动");
-      console.log(`📡 测试接口: ${apiPrefix}/advance-api-test`);
-      if (globalBase) {
+
+      // 测试接口地址
+      const testUrl = `${apiPrefix}/advance-api-test`;
+      console.log(`📡 测试接口: ${testUrl}`);
+
+      // 如果有全局基础路径
+      if (globalBase !== "/") {
         console.log(`🌍 全局基础路径: ${globalBase}`);
       }
+
+      // Hash模式提示
+      console.log("\n💡 提示：");
+      console.log("  • 如果使用 Hash 路由模式，API 请求不需要包含 '#' 符号");
+      console.log(`  • 例如：http://localhost:端口${testUrl}`);
+
+      if (!options.setup) {
+        console.log(
+          "  • 当前仅启用测试接口，可以通过访问以上地址验证插件是否正常工作"
+        );
+      }
+
       console.log(""); // 空行
     },
   };

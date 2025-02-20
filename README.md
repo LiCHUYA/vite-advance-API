@@ -63,7 +63,33 @@ Vite Advance API 提供了模块化的路由设计，支持通过 `ModuleConfig`
 
 在 `vite.config.ts` 中配置插件时，您可以通过 `setup` 函数提供常用的工具库（如 `lodash`, `axios`, `uuid`），以便更方便地编写路由和处理请求。
 
+```js
+// vite.config.ts
+import { defineConfig } from "vite";
+import { createAdvanceApi } from "vite-advance-api";
+
+
+// 最简单的用法 - 只启用测试接口
+const apiPlugin = createAdvanceApi();
+
+// 或者完整配置
+const apiPlugin = createAdvanceApi({
+  base: "/v1",
+  prefix: "/api",
+  setup: ({ _, axios, uuid, defineRoutes }) => [
+    // ... 路由配置
+  ],
+});
+
+export default defineConfig({
+  plugins: [apiPlugin],
+});
+
+```
+
 ```ts
+
+
 // vite.config.ts
 import { defineConfig } from "vite";
 import { createAdvanceApi } from "vite-advance-api";

@@ -59,9 +59,9 @@ export interface Utils {
 
 export interface CreateAdvanceApiOptions {
   base?: string;
-  prefix?: string; // API 前缀，默认为 "/api"
+  prefix?: string;
   cors?: CorsOptions;
-  setup: (utils: Utils) => ModuleConfig[];
+  setup?: (utils: Utils) => ModuleConfig[];
 }
 
 // 添加API文档相关的类型定义
