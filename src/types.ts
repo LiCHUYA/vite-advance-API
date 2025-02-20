@@ -58,8 +58,7 @@ export interface Utils {
 }
 
 export interface CreateAdvanceApiOptions {
-  base?: string;
-  prefix?: string;
+  prefix?: string; // 只保留 prefix 配置
   cors?: CorsOptions;
   setup?: (utils: Utils) => ModuleConfig[];
 }

@@ -68,28 +68,35 @@ Vite Advance API 提供了模块化的路由设计，支持通过 `ModuleConfig`
 import { defineConfig } from "vite";
 import { createAdvanceApi } from "vite-advance-api";
 
-
 // 最简单的用法 - 只启用测试接口
 const apiPlugin = createAdvanceApi();
 
 // 或者完整配置
 const apiPlugin = createAdvanceApi({
-  base: "/v1",
-  prefix: "/api",
-  setup: ({ _, axios, uuid, defineRoutes }) => [
-    // ... 路由配置
+  prefix: "/api", // 可选，默认为 "/api"
+  setup: ({ _, axios }) => [
+    {
+      type: "object", // 路由类型
+      base: "/v1/user", // 模块路径，最终为 /api/v1/user/xxx
+      apis: [
+        {
+          path: "/profile",
+          method: "get",
+          handler: async (req, res) => {
+            // ...
+          },
+        },
+      ],
+    },
   ],
 });
 
 export default defineConfig({
   plugins: [apiPlugin],
 });
-
 ```
 
 ```ts
-
-
 // vite.config.ts
 import { defineConfig } from "vite";
 import { createAdvanceApi } from "vite-advance-api";
@@ -97,7 +104,7 @@ import { createAdvanceApi } from "vite-advance-api";
 export default defineConfig({
   plugins: [
     createAdvanceApi({
-      base: "/v1", // 全局基础路径
+      prefix: "/api", // 可选，默认为 "/api"
       cors: {
         origin: "*", // CORS 配置
         credentials: true,
@@ -144,7 +151,7 @@ export default defineConfig({
 export default defineConfig({
   plugins: [
     createAdvanceApi({
-      base: "/v1", // 全局基础路径
+      prefix: "/api", // 可选，默认为 "/api"
       cors: {
         origin: "*", // CORS 配置
         credentials: true,
@@ -176,13 +183,13 @@ export default defineConfig({
 ```ts
 {
   type: "direct", // 路由类型
-  base: "/auth",  // 模块基础路径
+  base: "/auth", // 模块基础路径
   setup: (router) => {
     // 登录路由
     router.post("/login", async (req, res) => {
       res.success({ token: "xxx" });
     });
-  }
+  },
 }
 ```
 
@@ -216,7 +223,7 @@ import fs from "fs";
 
 // 创建插件实例
 const apiPlugin = createAdvanceApi({
-  base: "/v1", // 全局基础路径
+  prefix: "/api", // 可选，默认为 "/api"
   cors: {
     origin: "*",
     credentials: true,
@@ -358,5 +365,3 @@ interface CreateAdvanceApiOptions {
 ```
 
 ---
-
-通过这个插件，前端开发者能够更加高效地处理 API 路由，简化代码结构，提高开发体验。

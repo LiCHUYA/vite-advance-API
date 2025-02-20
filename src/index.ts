@@ -56,8 +56,7 @@ function createRouterDefiner(
 
 export function createAdvanceApi(options: CreateAdvanceApiOptions = {}) {
   const router = express.Router();
-  const globalBase = options.base || "/";
-  const apiPrefix = options.prefix || "/api";
+  const prefix = options.prefix || "/api"; // 只保留 prefix，用于指定 API 前缀
 
   const utils: Utils = {
     router,
@@ -65,9 +64,8 @@ export function createAdvanceApi(options: CreateAdvanceApiOptions = {}) {
     _: { pick, omit, get },
     axios,
     defineRoutes: (base: string, routes: RouteDefinition[]) => {
-      const fullBasePath = `${globalBase}${base}`;
       routes.forEach(({ path, method, handler }) => {
-        router[method](`${fullBasePath}${path}`, (req, res) =>
+        router[method](`${base}${path}`, (req, res) =>
           handler(req, new CommonResponse(res))
         );
       });
@@ -83,13 +81,11 @@ export function createAdvanceApi(options: CreateAdvanceApiOptions = {}) {
   if (options.setup) {
     const modules = options.setup(utils);
     modules.forEach((module) => {
-      const fullBasePath = `${globalBase}${module.base}`;
-
       switch (module.type) {
         case "object":
           // 对象模式
           module.apis.forEach(({ path, method, handler }) => {
-            router[method](`${fullBasePath}${path}`, (req, res) =>
+            router[method](`${module.base}${path}`, (req, res) =>
               handler(req, new CommonResponse(res))
             );
           });
@@ -97,7 +93,7 @@ export function createAdvanceApi(options: CreateAdvanceApiOptions = {}) {
 
         case "direct":
           // 直接路由模式
-          const routerDefiner = createRouterDefiner(router, fullBasePath);
+          const routerDefiner = createRouterDefiner(router, module.base);
           module.setup(routerDefiner);
           break;
       }
@@ -112,7 +108,7 @@ export function createAdvanceApi(options: CreateAdvanceApiOptions = {}) {
       app.use(express.json());
       app.use(express.urlencoded({ extended: true }));
       app.use(cors(options.cors || { origin: "*" }));
-      app.use(apiPrefix, router);
+      app.use(prefix, router);
 
       app.use(
         (
@@ -134,13 +130,8 @@ export function createAdvanceApi(options: CreateAdvanceApiOptions = {}) {
       console.log("\n🚀 Vite Advance API 插件已启动");
 
       // 测试接口地址
-      const testUrl = `${apiPrefix}/advance-api-test`;
+      const testUrl = `${prefix}/advance-api-test`;
       console.log(`📡 测试接口: ${testUrl}`);
-
-      // 如果有全局基础路径
-      if (globalBase !== "/") {
-        console.log(`🌍 全局基础路径: ${globalBase}`);
-      }
 
       // Hash模式提示
       console.log("\n💡 提示：");
