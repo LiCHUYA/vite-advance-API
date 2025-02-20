@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import axios from "axios";
 import { pick, omit, get } from "lodash";
@@ -11,6 +11,8 @@ import type {
   ModuleConfig,
   RouterDefiner,
   RouteDefinition,
+  RouteHandler,
+  ApiRequest,
 } from "./types";
 import { CommonResponse } from "./response";
 
@@ -30,70 +32,201 @@ const builtInRoutes: RouteDefinition[] = [
   },
 ];
 
+// 路径拼接工具改进
+function joinPaths(...paths: string[]): string {
+  return (
+    "/" +
+    paths
+      .map((path) => path.replace(/^\/+|\/+$/g, "")) // 去除首尾斜杠
+      .filter(Boolean) // 过滤空字符串
+      .join("/")
+  );
+}
+
+// 路由收集器
+class RouteCollector {
+  private routes: Array<{
+    method: string;
+    path: string;
+    moduleName?: string;
+  }> = [];
+
+  add(method: string, path: string, moduleName?: string) {
+    this.routes.push({ method: method.toUpperCase(), path, moduleName });
+  }
+
+  getRoutes() {
+    return this.routes;
+  }
+
+  printRoutes() {
+    console.log("\n📋 已注册的路由:");
+    this.routes.forEach(({ method, path, moduleName }) => {
+      console.log(
+        `  ${method.padEnd(6)} ${path}${moduleName ? ` (${moduleName})` : ""}`
+      );
+    });
+    console.log("");
+  }
+}
+
+// 统一的路由处理函数
+function createRouteHandler(
+  router: express.Router,
+  method: string,
+  basePath: string = "",
+  path: string,
+  handler: RouteHandler,
+  prefix: string,
+  routeCollector: RouteCollector,
+  moduleName: string
+) {
+  const fullPath = joinPaths(basePath, path);
+  const routerMethod =
+    router[method.toLowerCase() as "get" | "post" | "put" | "delete"];
+  if (routerMethod) {
+    routerMethod.call(router, fullPath, (req: Request, res: Response) => {
+      handler(req as ApiRequest, new CommonResponse(res));
+    });
+  }
+  routeCollector.add(method.toUpperCase(), `${prefix}${fullPath}`, moduleName);
+}
+
 function createRouterDefiner(
   router: express.Router,
-  basePath: string
+  basePath: string,
+  prefix: string,
+  routeCollector: RouteCollector
 ): RouterDefiner {
   return {
     get: (path, handler) =>
-      router.get(`${basePath}${path}`, (req, res) =>
-        handler(req, new CommonResponse(res))
+      createRouteHandler(
+        router,
+        "get",
+        basePath,
+        path,
+        handler,
+        prefix,
+        routeCollector,
+        "direct模式"
       ),
     post: (path, handler) =>
-      router.post(`${basePath}${path}`, (req, res) =>
-        handler(req, new CommonResponse(res))
+      createRouteHandler(
+        router,
+        "post",
+        basePath,
+        path,
+        handler,
+        prefix,
+        routeCollector,
+        "direct模式"
       ),
     put: (path, handler) =>
-      router.put(`${basePath}${path}`, (req, res) =>
-        handler(req, new CommonResponse(res))
+      createRouteHandler(
+        router,
+        "put",
+        basePath,
+        path,
+        handler,
+        prefix,
+        routeCollector,
+        "direct模式"
       ),
     delete: (path, handler) =>
-      router.delete(`${basePath}${path}`, (req, res) =>
-        handler(req, new CommonResponse(res))
+      createRouteHandler(
+        router,
+        "delete",
+        basePath,
+        path,
+        handler,
+        prefix,
+        routeCollector,
+        "direct模式"
       ),
   };
 }
 
 export function createAdvanceApi(options: CreateAdvanceApiOptions = {}) {
   const router = express.Router();
-  const prefix = options.prefix || "/api"; // 只保留 prefix，用于指定 API 前缀
+  const prefix = options.prefix || "/api";
+  const routeCollector = new RouteCollector();
 
   const utils: Utils = {
     router,
     uuid: uuidv4,
     _: { pick, omit, get },
     axios,
-    defineRoutes: (base: string, routes: RouteDefinition[]) => {
+    defineRoutes: (base: string = "", routes: RouteDefinition[]) => {
       routes.forEach(({ path, method, handler }) => {
-        router[method](`${base}${path}`, (req, res) =>
-          handler(req, new CommonResponse(res))
+        createRouteHandler(
+          router,
+          method,
+          base,
+          path,
+          handler,
+          prefix,
+          routeCollector,
+          "defineRoutes"
         );
       });
+      return {
+        type: "object",
+        base,
+        apis: routes,
+      } as ModuleConfig;
     },
+    getRoutes: () => routeCollector.getRoutes(),
+    printRoutes: () => routeCollector.printRoutes(),
   };
 
   // 注册内置路由
   builtInRoutes.forEach(({ path, method, handler }) => {
-    router[method](path, (req, res) => handler(req, new CommonResponse(res)));
+    createRouteHandler(
+      router,
+      method,
+      "",
+      path,
+      handler,
+      prefix,
+      routeCollector,
+      "内置"
+    );
   });
 
   // 只有在提供了setup函数时才注册用户模块
   if (options.setup) {
     const modules = options.setup(utils);
-    modules.forEach((module) => {
+    const moduleConfigs = Array.isArray(modules) ? modules : [modules];
+
+    moduleConfigs.forEach((module) => {
+      if (!module) return;
+
+      const basePath = module.base || ""; // base 默认为空字符串
+      const moduleName = `${module.type}模式`;
+
       switch (module.type) {
         case "object":
-          // 对象模式
           module.apis.forEach(({ path, method, handler }) => {
-            router[method](`${module.base}${path}`, (req, res) =>
-              handler(req, new CommonResponse(res))
+            createRouteHandler(
+              router,
+              method,
+              basePath,
+              path,
+              handler,
+              prefix,
+              routeCollector,
+              moduleName
             );
           });
           break;
 
         case "direct":
-          // 直接路由模式
-          const routerDefiner = createRouterDefiner(router, module.base);
+          const routerDefiner = createRouterDefiner(
+            router,
+            basePath,
+            prefix,
+            routeCollector
+          );
           module.setup(routerDefiner);
           break;
       }
@@ -110,33 +243,24 @@ export function createAdvanceApi(options: CreateAdvanceApiOptions = {}) {
       app.use(cors(options.cors || { origin: "*" }));
       app.use(prefix, router);
 
-      app.use(
-        (
-          err: any,
-          req: express.Request,
-          res: express.Response,
-          next: express.NextFunction
-        ) => {
-          console.error(err);
-          res
-            .status(500)
-            .json({ error: err.message || "Internal Server Error" });
-        }
-      );
+      app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+        console.error(err);
+        res.status(500).json({ error: err.message || "Internal Server Error" });
+      });
 
       server.middlewares.use(app);
 
       // 添加友好的启动提示
       console.log("\n🚀 Vite Advance API 插件已启动");
+      console.log(`📡 API前缀: ${prefix}`);
 
-      // 测试接口地址
-      const testUrl = `${prefix}/advance-api-test`;
-      console.log(`📡 测试接口: ${testUrl}`);
+      // 打印所有注册的路由
+      routeCollector.printRoutes();
 
       // Hash模式提示
       console.log("\n💡 提示：");
       console.log("  • 如果使用 Hash 路由模式，API 请求不需要包含 '#' 符号");
-      console.log(`  • 例如：http://localhost:端口${testUrl}`);
+      console.log(`  • 例如：http://localhost:端口${prefix}/advance-api-test`);
 
       if (!options.setup) {
         console.log(
@@ -149,4 +273,4 @@ export function createAdvanceApi(options: CreateAdvanceApiOptions = {}) {
   };
 }
 
-export type { CreateAdvanceApiOptions, Utils, ModuleConfig };
+export type { CreateAdvanceApiOptions, Utils, ModuleConfig, ApiRequest };

@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 import { resolve } from "path";
+import type { CreateAdvanceApiOptions } from "./src/types";
 
 export default defineConfig({
   build: {
@@ -23,5 +24,16 @@ export default defineConfig({
     },
     minify: "esbuild",
   },
-  plugins: [dts()],
+  plugins: [
+    dts({
+      include: ["src/**/*.ts"],
+      exclude: ["src/**/*.test.ts", "src/**/*.spec.ts"],
+      rollupTypes: true,
+      compilerOptions: {
+        declaration: true,
+        declarationMap: false,
+        emitDeclarationOnly: true,
+      },
+    }),
+  ],
 });

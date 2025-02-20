@@ -4,9 +4,14 @@ import { CommonResponse } from "./response";
 import axios from "axios";
 import { AxiosInstance } from "axios";
 
+// 自定义请求和响应类型
+export interface ApiRequest extends Request {
+  // 可以在这里扩展请求类型
+}
+
 // 路由处理器类型
 export type RouteHandler = (
-  req: Request,
+  req: ApiRequest,
   res: CommonResponse
 ) => void | Promise<void>;
 
@@ -54,7 +59,9 @@ export interface Utils {
     get: (obj: any, path: string, defaultValue?: any) => any;
   };
   axios: AxiosInstance;
-  defineRoutes: (base: string, routes: RouteDefinition[]) => void;
+  defineRoutes: (base?: string, routes: RouteDefinition[]) => ModuleConfig;
+  getRoutes: () => Array<{ method: string; path: string; moduleName?: string }>;
+  printRoutes: () => void;
 }
 
 export interface CreateAdvanceApiOptions {
