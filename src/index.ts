@@ -57,6 +57,7 @@ function createRouterDefiner(
 export function createAdvanceApi(options: CreateAdvanceApiOptions) {
   const router = express.Router();
   const globalBase = options.base || "";
+  const apiPrefix = options.prefix || "/api";
 
   const utils: Utils = {
     router,
@@ -109,7 +110,7 @@ export function createAdvanceApi(options: CreateAdvanceApiOptions) {
       app.use(express.json());
       app.use(express.urlencoded({ extended: true }));
       app.use(cors(options.cors || { origin: "*" }));
-      app.use("/api", router);
+      app.use(apiPrefix, router);
 
       app.use(
         (
@@ -126,6 +127,14 @@ export function createAdvanceApi(options: CreateAdvanceApiOptions) {
       );
 
       server.middlewares.use(app);
+
+      // 添加友好的启动提示
+      console.log("\n🚀 Vite Advance API 插件已启动");
+      console.log(`📡 测试接口: ${apiPrefix}/advance-api-test`);
+      if (globalBase) {
+        console.log(`🌍 全局基础路径: ${globalBase}`);
+      }
+      console.log(""); // 空行
     },
   };
 }

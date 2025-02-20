@@ -57,8 +57,6 @@ Vite Advance API 提供了模块化的路由设计，支持通过 `ModuleConfig`
 - 默认支持 CORS
 - 内置 `body-parser`（`express.json` 和 `express.urlencoded`）
 
-
-
 ### 在 Vite 中使用
 
 #### 基础配置
@@ -311,6 +309,7 @@ res.denied(data, message?)
 ```ts
 interface CreateAdvanceApiOptions {
   base?: string;
+  prefix?: string; // 可选，默认为 "/api"
   cors?: {
     origin?: string | string[];
     credentials?: boolean;
