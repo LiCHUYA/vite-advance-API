@@ -1,0 +1,12 @@
+vitepress-api-plugin/
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+├── .eslintrc.js
+├── .prettierrc
+├── README.md
+├── src/
+│   ├── index.ts
+│   └── types.ts
+└── example/
+    └── usage.ts 
