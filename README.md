@@ -127,6 +127,18 @@ setup函数的形参为utils对象，包含以下属性：
 - \_: lodash对象
 - axios: axios对象
 
+因为在setup函数中 可以拿到已经实例化好的app和express和router对象，这也意味着可以使用更加简单的方式 来调用接口
+
+```js
+createAdvanceApi({
+  setup: ({ app, express }) => {
+    // 可以直接配置 app
+    app.use(express.static("public"));
+    // ... 其他配置
+  },
+});
+```
+
 setup函数返回一个模块配置数组，每个模块配置包含以下属性：
 
 - type: 模块类型，可选值为`object`或`direct`
