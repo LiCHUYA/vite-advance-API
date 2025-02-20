@@ -1,26 +1,35 @@
-# Vite Advance API 插件
+## Vite Advance API 插件
 
-在开发前端时，有时需要编写简化的 Node 接口来提升开发效率。但是目前市面上似乎并没有完全符合我需求的 NPM 包，于是我自己开发了一个 **Vite 插件**
-
-该插件是一个专为 Vite 设计的 API 插件，支持多种路由定义方式，并且具有统一的响应处理机制。其主要特点如下：
-
-- 支持三种不同的路由定义方式
-- 统一的响应格式
-- 内置常用的工具函数
-- 提供 TypeScript 支持
+在前端开发中，提升开发效率是每个开发者的目标，尤其是在处理 API 时。虽然市面上有许多成熟的解决方案，但它们往往无法完全满足特定需求。为此，我开发了一个 **Vite 插件**，即 **Vite Advance API**，旨在简化前端 API 开发，支持多种路由定义方式，并提供统一的响应处理机制。
 
 ---
 
-## 主要特点
+### 安装
 
-### 1. 内置 `express-async-errors` 库
+您可以通过以下命令来安装该插件：
 
-通过使用 `express-async-errors`，我们无需在每个异步路由处理函数中手动编写 `try-catch` 语句，极大简化了代码结构。
+```bash
+npm install vite-advance-api
+```
 
-#### 示例：无需 `try-catch`
+或者使用 `pnpm`：
+
+```bash
+pnpm install vite-advance-api
+```
+
+---
+
+### 主要特点
+
+#### 1. 内置 `express-async-errors` 库
+
+该插件集成了 `express-async-errors`，使得在编写异步路由时，开发者不需要手动处理 `try-catch`，自动捕获错误并传递给错误处理中间件，从而简化代码。
+
+##### 示例：无需 `try-catch`
 
 ```js
-// 传统的方式：每个异步处理都需要写 try-catch
+// 传统方式：每个异步处理都需要写 try-catch
 router.get("/data", async (req, res, next) => {
   try {
     // 异步操作
@@ -36,43 +45,27 @@ router.get("/data", async (req, res) => {
 });
 ```
 
-### 2. 灵活的路由配置
+#### 2. 灵活的路由配置
 
-Vite Advance API 提供了模块化设计，支持通过 `ModuleConfig` 配置两种不同的路由注册模式（`object` 和 `direct`），让代码结构更清晰，易于维护和扩展。
+Vite Advance API 提供了模块化的路由设计，支持通过 `ModuleConfig` 配置多种路由注册方式（如 `object` 和 `direct`）。此外，插件还具备如下特性：
 
-- 支持全局基础路径（`globalBase`）
-- 提供统一的路由定义接口
+- 支持全局基础路径配置 (`globalBase`)
+- 统一的路由定义接口
 - 支持所有主要的 HTTP 方法（`GET`, `POST`, `PUT`, `DELETE`）
 - 统一的响应处理机制
-- 集成常用的工具库（如 `lodash`, `axios`, `uuid`）
-- 默认集成了 CORS 支持
-- 内置 `body-parser` 功能（`express.json` 和 `express.urlencoded`）
+- 集成常用工具库（如 `lodash`, `axios`, `uuid`）
+- 默认支持 CORS
+- 内置 `body-parser`（`express.json` 和 `express.urlencoded`）
 
----
 
-## 安装
 
-你可以通过以下命令安装插件：
+### 在 Vite 中使用
 
-```bash
-npm install vite-advance-api
-```
+#### 基础配置
 
-或使用 `pnpm`：
+在 `vite.config.ts` 中配置插件时，您可以通过 `setup` 函数提供常用的工具库（如 `lodash`, `axios`, `uuid`），以便更方便地编写路由和处理请求。
 
-```bash
-pnpm install vite-advance-api
-```
-
----
-
-## 在 Vite 中使用
-
-### 基础配置
-
-在 `vite.config.ts` 中配置插件时，可以通过 `setup` 函数提供内置的三种工具库（`lodash`, `axios`, `uuid`），用于简化开发过程。
-
-````ts
+```ts
 // vite.config.ts
 import { defineConfig } from "vite";
 import { createAdvanceApi } from "vite-advance-api";
@@ -91,23 +84,23 @@ export default defineConfig({
     }),
   ],
 });
+```
 
-### 引入插件之后
-访问 api/advance-api-test 可以访问到测试路由
+#### 引入插件之后
 
-- 测试路由: `/api/v1/advance-api-test`
+访问 `/api/v1/advance-api-test` 即可访问测试路由。
 
 ---
 
 ## 路由定义模式
 
-### 1. 对象模式
+### 1. 对象模式（`object`）
 
-对象模式适合结构清晰、功能较简单的 API 定义。通过该模式，可以明确地设置路径、HTTP 方法和处理函数。
+对象模式适用于路由结构简单、功能明确的 API 定义。通过该模式，可以直观地设置路径、HTTP 方法和对应的处理函数。
 
 ```ts
 {
-  type: "object", // 定义路由的类型
+  type: "object", // 路由类型
   base: "/software",  // 模块基础路径
   apis: [
     {
@@ -119,9 +112,9 @@ export default defineConfig({
     }
   ]
 }
-````
+```
 
-使用
+#### 使用方式
 
 ```js
 export default defineConfig({
@@ -138,7 +131,7 @@ export default defineConfig({
           base: "/software", // 模块基础路径
           apis: [
             {
-              path: "/status", // 路由的具体路径
+              path: "/status", // 路由路径
               method: "get", // HTTP 方法
               handler: async (req, res) => {
                 res.success({ status: "ok" });
@@ -152,13 +145,13 @@ export default defineConfig({
 });
 ```
 
-### 2. 直接路由模式
+### 2. 直接路由模式（`direct`）
 
-该模式类似于传统的 Express 路由定义方式，适用于复杂的路由结构或更灵活的配置需求。
+此模式适用于需要更加灵活的路由配置，可以直接在 `setup` 函数中注册路由。
 
 ```ts
 {
-  type: "direct", // 定义路由的类型
+  type: "direct", // 路由类型
   base: "/auth",  // 模块基础路径
   setup: (router) => {
     // 登录路由
@@ -171,11 +164,10 @@ export default defineConfig({
 
 ### 3. `defineRoutes` 工具函数
 
-通过 `defineRoutes` 函数，可以在 `setup` 函数中直接定义路由。
+通过 `defineRoutes` 函数，可以直接在 `setup` 函数中定义路由，简化代码结构。
 
 ```ts
 setup: ({ defineRoutes }) => {
-  // 定义路由：最终路径为 /api/v1/user/profile
   defineRoutes("/user", [
     {
       path: "/profile",
@@ -192,7 +184,7 @@ setup: ({ defineRoutes }) => {
 
 ## 完整示例
 
-下面是一个完整的使用示例，展示了如何在插件中定义不同的路由模式和逻辑。
+以下是一个完整的使用示例，展示了如何在插件中定义不同的路由模式及其逻辑。
 
 ```js
 import { createAdvanceApi } from "vite-advance-api";
@@ -215,52 +207,53 @@ const apiPlugin = createAdvanceApi({
           path: "/status",
           method: "get",
           handler: async (req, res) => {
-      		   const status = {
-                version: "1.0.0",
-                isRunning: true,
-                lastCheck: new Date().toISOString(),
-              };
-              // 使用 lodash 工具函数简化操作
-              const publicStatus = _.pick(status, ["version", "isRunning"]);
-              res.success(publicStatus);
+            const status = {
+              version: "1.0.0",
+              isRunning: true,
+              lastCheck: new Date().toISOString(),
+            };
+            const publicStatus = _.pick(status, ["version", "isRunning"]);
+            res.success(publicStatus);
           },
         },
       ],
     },
 
     // 2. 直接路由模式 - 认证模块
+    {
       type: "direct",
       base: "/auth",
       setup: (router) => {
         // 登出
         router.post("/logout", async (req, res) => {
-             const { sessionId } = req.body;
-            await axios.post("http://auth-service/logout", { sessionId });
-            res.success(null, "登出成功");
+          const { sessionId } = req.body;
+          await axios.post("http://auth-service/logout", { sessionId });
+          res.success(null, "登出成功");
         });
       },
     },
   ],
-});
 
-// 3. defineRoutes 方式 - 用户模块
-apiPlugin.setup(({ defineRoutes, _, axios }) => {
-  defineRoutes("/user", [
-    {
-      path: "/profile",
-      method: "get",
-      handler: async (req, res) => {
+  // 3. defineRoutes 方式 - 用户模块
+  setup: ({ defineRoutes, _, axios }) => {
+    defineRoutes("/user", [
+      {
+        path: "/profile",
+        method: "get",
+        handler: async (req, res) => {
           const userId = req.query.id;
           const { data: user } = await axios.get(
             `http://user-service/users/${userId}`
           );
           const safeUser = _.omit(user, ["password"]);
           res.success(safeUser);
+        },
       },
-    },
-  ]);
+    ]);
+  },
 });
 
+// Vite 配置文件中注册插件
 export default {
   plugins: [apiPlugin],
 };
@@ -270,7 +263,7 @@ export default {
 
 ## 统一响应格式
 
-Vite Advance API 提供了统一的响应格式，便于前后端协作时的一致性。
+Vite Advance API 提供了统一的响应格式，确保前后端数据的一致性。
 
 ### 成功响应
 
@@ -330,13 +323,15 @@ interface CreateAdvanceApiOptions {
       get: (obj: any, path: string, defaultValue?: any) => any;
     };
     http: {
-      get: (url: string => Promise<any>;
+      get: (url: string) => Promise<any>;
       post: (url: string, data?: any) => Promise<any>;
     };
     uuid: () => string;
-   Routes: (base: string, routes: RouteDefinition[]) => void;
+    defineRoutes: (base: string, routes: RouteDefinition[]) => void;
   }) => ModuleConfig[];
 }
 ```
 
 ---
+
+通过这个插件，前端开发者能够更加高效地处理 API 路由，简化代码结构，提高开发体验。
