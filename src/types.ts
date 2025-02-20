@@ -3,6 +3,7 @@ import { CorsOptions } from "cors";
 import { CommonResponse } from "./response";
 import axios from "axios";
 import { AxiosInstance } from "axios";
+import type { Express } from "express";
 
 // 自定义请求和响应类型
 export interface ApiRequest extends Request {
@@ -51,7 +52,9 @@ export interface DirectModeModule {
 
 // 核心工具集合
 export interface Utils {
-  router: Router;
+  router: express.Router;
+  app: Express;
+  express: typeof express;
   uuid: () => string;
   _: {
     pick: <T>(obj: T, paths: string[]) => Partial<T>;

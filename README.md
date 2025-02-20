@@ -116,6 +116,23 @@ export default defineConfig({
 });
 ```
 
+#### setup函数介绍
+
+setup函数的形参为utils对象，包含以下属性：
+
+- router: express的router对象
+- app: express的app对象
+- express: express对象
+- uuid: 生成uuid的函数
+- \_: lodash对象
+- axios: axios对象
+
+setup函数返回一个模块配置数组，每个模块配置包含以下属性：
+
+- type: 模块类型，可选值为`object`或`direct`
+- base: 模块基础路径
+- apis: 路由配置数组
+
 #### 引入插件之后
 
 访问 `/api/v1/advance-api-test` 即可访问测试路由。
@@ -153,7 +170,7 @@ export default defineConfig({
   plugins: [
     createAdvanceApi({
       setup: ({ _, axios, uuid }) => [
-  		 {
+        {
           type: "object", // 定义路由的类型
           base: "/software", // 模块基础路径
           apis: [
@@ -165,7 +182,7 @@ export default defineConfig({
               },
             },
           ],
-        },	
+        },
       ],
     }),
   ],
@@ -230,7 +247,7 @@ export default defineConfig({
   plugins: [
     createAdvanceApi({
       setup: ({ _, axios, uuid, defineRoutes }) => [
-         //方式一
+        //方式一
         {
           type: "object", // 定义路由的类型
           base: "/software", // 模块基础路径
@@ -244,7 +261,7 @@ export default defineConfig({
             },
           ],
         },
-          //方式二
+        //方式二
         {
           type: "direct", // 路由类型
           base: "/", // 模块基础路径
@@ -255,7 +272,7 @@ export default defineConfig({
             });
           },
         },
-          //方式三
+        //方式三
         defineRoutes("/user", [
           {
             path: "/profile",
@@ -269,7 +286,6 @@ export default defineConfig({
     }),
   ],
 });
-
 ```
 
 ---
@@ -336,7 +352,6 @@ setup: ({ getRoutes, printRoutes }) => {
     /* 路由配置 */
   ];
 };
-
 ```
 
 ## 配置
@@ -358,7 +373,7 @@ interface CreateAdvanceApiOptions {
   /**
    * `setup` 函数用于定义路由
    * 该函数接收一个工具对象，并返回一个模块配置（或多个模块配置）。
-   * 
+   *
    * @param utils 工具对象，包含了常用工具库和方法，如 `axios`, `uuid`, `lodash` 等
    */
   setup?: (utils: Utils) => ModuleConfig[];
@@ -457,4 +472,3 @@ export interface ModuleDoc {
 export type ModuleConfig = ObjectModeModule | DirectModeModule;
 
 ```
-

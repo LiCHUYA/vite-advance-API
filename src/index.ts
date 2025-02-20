@@ -85,8 +85,8 @@ function createRouteHandler(
   const routerMethod =
     router[method.toLowerCase() as "get" | "post" | "put" | "delete"];
   if (routerMethod) {
-    routerMethod.call(router, fullPath, (req: Request, res: Response) => {
-      handler(req as ApiRequest, new CommonResponse(res));
+    routerMethod.bind(router)(fullPath, async (req: Request, res: Response) => {
+      await handler(req as ApiRequest, new CommonResponse(res));
     });
   }
   routeCollector.add(method.toUpperCase(), `${prefix}${fullPath}`, moduleName);
@@ -148,11 +148,14 @@ function createRouterDefiner(
 
 export function createAdvanceApi(options: CreateAdvanceApiOptions = {}) {
   const router = express.Router();
+  const app = express();
   const prefix = options.prefix || "/api";
   const routeCollector = new RouteCollector();
 
   const utils: Utils = {
     router,
+    app,
+    express,
     uuid: uuidv4,
     _: { pick, omit, get },
     axios,
@@ -236,8 +239,7 @@ export function createAdvanceApi(options: CreateAdvanceApiOptions = {}) {
   return {
     name: "vite-advance-api",
     configureServer(server: ViteDevServer) {
-      const app = express();
-
+      // 配置 app
       app.use(express.json());
       app.use(express.urlencoded({ extended: true }));
       app.use(cors(options.cors || { origin: "*" }));
