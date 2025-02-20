@@ -16,119 +16,18 @@ import type {
 } from "./types";
 import { CommonResponse } from "./response";
 
-// 修改内置路由，添加文档路由
+// 内置的测试路由
 const builtInRoutes: RouteDefinition[] = [
   {
     path: "/advance-api-test",
     method: "get",
     handler: async (req, res) => {
-      const routeCollector = new RouteCollector();
       res.success({
         status: "ok",
         time: new Date().toISOString(),
         version: "1.0.0",
         message: "Vite Advance API is working!",
-        routes: routeCollector.getRoutes(),
-        printRoutes: routeCollector.printRoutes(),
       });
-    },
-  },
-  {
-    path: "/advance-api-docs",
-    method: "get",
-    handler: async (req, res) => {
-      const routes = routeCollector.getRoutes();
-      const docsHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Vite Advance API Documentation</title>
-          <style>
-            body {
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-              max-width: 1200px;
-              margin: 0 auto;
-              padding: 20px;
-              background: #f5f5f5;
-            }
-            .header {
-              background: #fff;
-              padding: 20px;
-              border-radius: 8px;
-              margin-bottom: 20px;
-              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            .route-list {
-              background: #fff;
-              border-radius: 8px;
-              padding: 20px;
-              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            .route-item {
-              padding: 15px;
-              border-bottom: 1px solid #eee;
-            }
-            .route-item:last-child {
-              border-bottom: none;
-            }
-            .method {
-              display: inline-block;
-              padding: 4px 8px;
-              border-radius: 4px;
-              font-weight: bold;
-              min-width: 60px;
-              text-align: center;
-              margin-right: 10px;
-            }
-            .get { background: #e3f2fd; color: #1976d2; }
-            .post { background: #e8f5e9; color: #388e3c; }
-            .put { background: #fff3e0; color: #f57c00; }
-            .delete { background: #ffebee; color: #d32f2f; }
-            .path {
-              font-family: monospace;
-              font-size: 14px;
-            }
-            .module-name {
-              color: #666;
-              font-size: 12px;
-              margin-left: 10px;
-            }
-            h1 { color: #333; }
-            .description {
-              color: #666;
-              margin: 10px 0;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Vite Advance API Documentation</h1>
-            <p class="description">API 前缀: ${prefix}</p>
-          </div>
-          <div class="route-list">
-            ${routes
-              .map(
-                (route) => `
-              <div class="route-item">
-                <span class="method ${route.method.toLowerCase()}">${
-                  route.method
-                }</span>
-                <span class="path">${route.path}</span>
-                ${
-                  route.moduleName
-                    ? `<span class="module-name">${route.moduleName}</span>`
-                    : ""
-                }
-              </div>
-            `
-              )
-              .join("")}
-          </div>
-        </body>
-        </html>
-      `;
-
-      res.type("html").send(docsHtml);
     },
   },
 ];
@@ -363,12 +262,7 @@ export function createAdvanceApi(options: CreateAdvanceApiOptions = {}) {
       // Hash模式提示
       console.log("\n💡 提示：");
       console.log("  • 如果使用 Hash 路由模式，API 请求不需要包含 '#' 符号");
-      console.log(
-        `  • API测试地址：http://localhost:端口${prefix}/advance-api-test`
-      );
-      console.log(
-        `  • API文档地址：http://localhost:端口${prefix}/advance-api-docs`
-      );
+      console.log(`  • 例如：http://localhost:端口${prefix}/advance-api-test`);
 
       if (!options.setup) {
         console.log(
