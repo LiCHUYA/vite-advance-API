@@ -97,18 +97,18 @@ export default defineConfig({
 
 `/api/docs` 文档。
 
-![1740040249411.png](https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/8909d26d7df749aaa5e8e6db94e78088~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgX2FkdmFuY2U=:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMjQyMzc5MjYzMTU1MTI3MiJ9&rk3s=f64ab15b&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1740734475&x-orig-sign=QRJLgahe1fit%2FENXqsCxmC5Yf3U%3D)
+![1740130693549](./assets/1740130693549.png)
 
 访问 `/api/advance-api-test` 即可访问测试路由。
 访问 `http://localhost:端口/api/advance-api-test`\
 看到 `{ code: 200, success: true }` 即表示成功！
 
-![image.png](https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/041991fc73144f43814fadaa32d307a0~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgX2FkdmFuY2U=:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMjQyMzc5MjYzMTU1MTI3MiJ9&rk3s=e9ecf3d6&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1740216154&x-orig-sign=Fa1yvuSaySnEf6xd4QW%2FAYQSHUY%3D)
+![image-20250221173847600](./assets/image-20250221173847600.png)
 
 访问 `/api/docs` 即可访问文档。
 访问 `http://localhost:端口/api/docs`
 
-![image.png](https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/f5749b6cda99462a837805413c7b0f3a~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgX2FkdmFuY2U=:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMjQyMzc5MjYzMTU1MTI3MiJ9&rk3s=e9ecf3d6&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1740216210&x-orig-sign=UDVsoQdXFJaYb%2FJ%2FdxTmRo9sRvQ%3D)
+![image-20250221173908676](./assets/image-20250221173908676.png)
 
 ---
 
@@ -206,7 +206,7 @@ createAdvanceApi({
 }
 ```
 
-![image.png](https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/3f83b36112b647f2b39a6a2d6d715ca9~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgX2FkdmFuY2U=:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMjQyMzc5MjYzMTU1MTI3MiJ9&rk3s=e9ecf3d6&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1740216580&x-orig-sign=8yz%2BM6Rw3a4HO77TBVoKrC5IqAw%3D)
+![image-20250221173934279](./assets/image-20250221173934279.png)
 
 #### 场景三：商品模块（声明式）
 
