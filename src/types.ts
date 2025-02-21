@@ -10,11 +10,17 @@ export interface ApiRequest extends Request {
   // 可以在这里扩展请求类型
 }
 
-// 路由处理器类型
+// 扩展 Response 接口
+export interface ExtendedResponse extends Response {
+  success(data: any): Response;
+  error(message: string, code?: number): Response;
+}
+
+// 路由处理函数的类型定义
 export type RouteHandler = (
   req: ApiRequest,
-  res: CommonResponse
-) => void | Promise<void>;
+  res: ExtendedResponse
+) => Promise<void> | void;
 
 // 1. 对象模式的类型
 export interface ApiConfig {
@@ -34,14 +40,28 @@ export interface RouteDefinition {
   path: string;
   method: "get" | "post" | "put" | "delete";
   handler: RouteHandler;
+  description?: string; // 接口描述
+  params?: {
+    // 参数说明
+    [key: string]: {
+      type: string;
+      required?: boolean;
+      description?: string;
+    };
+  };
+  response?: {
+    // 响应示例
+    success?: any;
+    error?: any;
+  };
 }
 
 // 3. 直接路由模式的类型
 export interface RouterDefiner {
-  get: (path: string, handler: RouteHandler) => void;
-  post: (path: string, handler: RouteHandler) => void;
-  put: (path: string, handler: RouteHandler) => void;
-  delete: (path: string, handler: RouteHandler) => void;
+  get: (path: string, handler: RouteHandler, description?: string) => void;
+  post: (path: string, handler: RouteHandler, description?: string) => void;
+  put: (path: string, handler: RouteHandler, description?: string) => void;
+  delete: (path: string, handler: RouteHandler, description?: string) => void;
 }
 
 export interface DirectModeModule {
@@ -85,6 +105,13 @@ export interface ApiDoc {
 export interface ModuleDoc {
   name: string; // 模块名称
   description?: string; // 模块描述
+}
+
+// 添加 NetworkInterfaceInfo 类型并导出
+export interface NetworkInterfaceInfo {
+  family: string;
+  internal: boolean;
+  address: string;
 }
 
 // 模块类型联合

@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 import { resolve } from "path";
-import type { CreateAdvanceApiOptions } from "./src/types";
 
 export default defineConfig({
   build: {

@@ -1,51 +1,50 @@
-## Vite Advance API 插件
+# 💥 Vite 插件：零配置开发 Node 接口方案
 
-在前端开发中，提高开发效率是每个开发者的目标，尤其是在处理 API 时。尽管市场上已有许多成熟的解决方案，它们往往无法完全满足特定需求。为此，我们开发了一个 **Vite 插件** —— **Vite Advance API**，它旨在简化前端 API 开发，支持多种路由定义方式，并提供统一的响应处理机制。
-
----
-
-### 安装
-
-您可以通过以下命令来安装该插件：
-
-```bash
-npm install vite-advance-api
-```
-
-或者使用 `pnpm`：
-
-```bash
-pnpm install vite-advance-api
-```
+> **痛点直击**：你是否也遇到过这些场景？
+>
+> - 需要临时开发几个 Node 接口却不想新建后端项目
+> - 想用 Express 但受限于 Vite 插件的简陋配置
+> - 被重复的 try-catch 和错误处理折磨到崩溃
 
 ---
 
-### 主要特点
+在前端工程化的开发中，会有一些需求要使用node编写辅助接口 ,比如 node接口转发,状态存储等等,而因为几个接口去创建一个后端项目并且部署,显然是不符合预期的,虽然Vite支持直接使用plugin编写express接口,但是不够模块化,也不够简洁(想造轮子了) 它们往往无法完全满足特定需求。于是，我开发了一个 **Vite 插件** —— **Vite Advance API**，它旨在简化前端 API 开发，支持多种路由定义方式，并提供统一的响应处理机制。
 
-#### 1. 内置 `express-async-errors` 库
+github地址: [LiCHUYA/vite-advance-API](https://github.com/LiCHUYA/vite-advance-API/tree/master)
+
+## 🌟 功能全景
+
+### 1. **错误系统**
 
 该插件集成了 `express-async-errors`，使得在编写异步路由时，开发者不需要手动处理 `try-catch`，插件会自动捕获错误并将其传递给错误处理中间件，从而简化代码。
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0d9e6f2f0a0f4c1e8d9e3b4f4e4d4d4d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=800&h=400&s=123456&e=png&b=20232a)
 
-##### 示例：无需 `try-catch`
+|          | 传统方案               | 本插件方案          |
+| -------- | ---------------------- | ------------------- |
+| 代码量   | 😫 冗余 try-catch 嵌套 | 😍 零错误处理代码   |
+| 维护性   | 😰 分散在各处          | 😎 集中式错误中间件 |
+| 响应规范 | 😵 格式混乱            | 🤖 自动统一错误格式 |
 
 ```js
-// 传统方式：每个异步操作都需要写 try-catch
-router.get("/data", async (req, res, next) => {
+// 传统方案 vs 插件方案
+// ❌ 旧世界
+app.get("/data", async (req, res, next) => {
   try {
-    // 异步操作
-  } catch (error) {
-    next(error);
+    const data = await fetchData();
+    res.json(data);
+  } catch (err) {
+    next(new Error("数据获取失败"));
   }
 });
 
-// 使用 vite-advance-api 后，可以直接编写异步函数，无需 try-catch
-router.get("/data", async (req, res) => {
-  // 异步操作
-  // 错误会自动被捕获并传递给错误处理中间件
+// ✅ 新世界
+app.get("/data", async (req, res) => {
+  const data = await fetchData();
+  res.success(data); // 自动处理错误和响应
 });
 ```
 
-#### 2. 灵活的路由配置
+### 2.灵活的配置
 
 Vite Advance API 提供了模块化的路由设计，支持通过 `ModuleConfig` 配置多种路由注册方式（如 `object` 和 `direct`）。此外，插件还具备如下特性：
 
@@ -57,43 +56,18 @@ Vite Advance API 提供了模块化的路由设计，支持通过 `ModuleConfig`
 - 默认支持 CORS
 - 内置 `body-parser`（`express.json` 和 `express.urlencoded`）
 
-### 在 Vite 中使用
+## 🚀 五分钟极速入门
 
-#### 基础配置
+### 1. 安装插件
 
-在 `vite.config.ts` 中配置插件时，您可以通过 `setup` 函数提供常用的工具库（如 `lodash`, `axios`, `uuid`），以便更方便地编写路由和处理请求。
-
-```js
-// vite.config.ts
-import { defineConfig } from "vite";
-import { createAdvanceApi } from "vite-advance-api";
-
-// 最简单的用法 - 只启用测试接口
-createAdvanceApi();
-
-// 或者完整配置
-createAdvanceApi({
-  setup: ({ _, axios, uuid }) => [
-    {
-      type: "object", // 定义路由的类型
-      base: "/software", // 模块基础路径
-      apis: [
-        {
-          path: "/status", // 路由路径
-          method: "get", // HTTP 方法
-          handler: async (req, res) => {
-            res.success({ status: "ok" });
-          },
-        },
-      ],
-    },
-  ],
-});
-
-export default defineConfig({
-  plugins: [createAdvanceApi()], // 最简单的用法 - 只启用测试接口
-});
+```bash
+# 选你喜欢的包管理器
+pnpm add vite-advance-api -D
+# 或
+npm install vite-advance-api -D
 ```
+
+### 2. 基础配置
 
 ```ts
 // vite.config.ts
@@ -103,22 +77,48 @@ import { createAdvanceApi } from "vite-advance-api";
 export default defineConfig({
   plugins: [
     createAdvanceApi({
-      prefix: "/api", // 可选，默认为 "/api"
-      cors: {
-        origin: "*", // CORS 配置
-        credentials: true,
-      },
-      setup: ({ _, axios, uuid }) => [
-        // 在此定义你的路由...
+      prefix: "/api", // 全局路由前缀
+      cors: { origin: "*" }, // 开发环境跨域
+      setup: ({ axios, uuid }) => [
+        // 这里添加你的路由配置
       ],
     }),
   ],
 });
 ```
 
-#### setup函数介绍
+### 3. 验证安装
 
-setup函数的形参为utils对象，包含以下属性：
+#### 引入插件之后 内置了2个路由
+
+以下两个路由为插件内置路由，当引入插件后,可进行查阅
+
+`/api/advance-api-test` 测试路由。
+
+`/api/docs` 文档。
+
+![1740040249411.png](https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/8909d26d7df749aaa5e8e6db94e78088~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgX2FkdmFuY2U=:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMjQyMzc5MjYzMTU1MTI3MiJ9&rk3s=f64ab15b&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1740734475&x-orig-sign=QRJLgahe1fit%2FENXqsCxmC5Yf3U%3D)
+
+访问 `/api/advance-api-test` 即可访问测试路由。
+访问 `http://localhost:端口/api/advance-api-test`\
+看到 `{ code: 200, success: true }` 即表示成功！
+
+![image.png](https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/041991fc73144f43814fadaa32d307a0~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgX2FkdmFuY2U=:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMjQyMzc5MjYzMTU1MTI3MiJ9&rk3s=e9ecf3d6&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1740216154&x-orig-sign=Fa1yvuSaySnEf6xd4QW%2FAYQSHUY%3D)
+
+访问 `/api/docs` 即可访问文档。
+访问 `http://localhost:端口/api/docs`
+
+![image.png](https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/f5749b6cda99462a837805413c7b0f3a~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgX2FkdmFuY2U=:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMjQyMzc5MjYzMTU1MTI3MiJ9&rk3s=e9ecf3d6&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1740216210&x-orig-sign=UDVsoQdXFJaYb%2FJ%2FdxTmRo9sRvQ%3D)
+
+---
+
+## 🔥 核心功能深度解析
+
+### 1. **setup 超级工厂**
+
+`setup`函数作为整个插件的核心,我们可以来详细介绍一下:
+
+setup函数的形参为utils对象，它包含以下属性：
 
 - router: express的router对象
 - app: express的app对象
@@ -126,99 +126,89 @@ setup函数的形参为utils对象，包含以下属性：
 - uuid: 生成uuid的函数
 - \_: lodash对象
 - axios: axios对象
+- defineRoutes:第三种创建接口方式的函数
+- getRoutes: \[Function: getRoutes] 注册的路由,
+- printRoutes:\[Function: getRoutes] 打印路由
 
-因为在setup函数中 可以拿到已经实例化好的app和express和router对象，这也意味着可以使用更加简单的方式 来调用接口
+在setup函数中,内置这些功能,也是为了简化操作,快速开发,以后也会多扩展一点更有用的。
+
+而在setup函数中可以拿到已经实例化好的app和express和router对象，这也意味着可以使用更加简单的方式 来创建接口。
+
+```mermaid
+graph TD
+    A[setup 函数] --> B{注入工具集}
+    B --> C[Express 核心]
+    B --> D[实用工具库]
+    B --> E[路由管理]
+    C --> F[app 实例]
+    C --> G[express 对象]
+    D --> H[axios]
+    D --> I[lodash]
+    D --> J[uuid]
+    E --> K[router]
+    E --> L[defineRoutes]
+```
+
+**典型应用场景**：
 
 ```js
 createAdvanceApi({
   setup: ({ app, express }) => {
-    // 可以直接配置 app
+    // 配置静态资源
     app.use(express.static("public"));
-    // ... 其他配置
+
+    // 添加全局中间件
+    app.use((req, res, next) => {
+      console.log("Request coming:", req.url);
+      next();
+    });
   },
 });
 ```
 
-setup函数返回一个模块配置数组，每个模块配置包含以下属性：
-
-- type: 模块类型，可选值为`object`或`direct`
-- base: 模块基础路径
-- apis: 路由配置数组
-
-#### 引入插件之后 内置两个路由
-
-访问 `/api/v1/advance-api-test` 即可访问测试路由。
-
-![1740040249411](./assets/1740040249411.png)
-
 ---
 
-## 路由定义模式
+### 2. 路由配置实战手册(三种模式)
 
-### 1. 对象模式（`object`）
-
-对象模式适用于路由结构简单、功能明确的 API 定义。通过该模式，可以直观地设置路径、HTTP 方法和对应的处理函数。
+#### 场景一：用户模块（对象式）
 
 ```ts
 {
-  type: "object", // 路由类型
-  base: "/software",  // 模块基础路径
-  apis: [
+  type: "object", //类型
+  base: "/users", //模块公共前缀
+  apis: [        //一个对象为一个接口
     {
-      path: "/status", // 路由的具体路径
-      method: "get",   // HTTP 方法
+      path: "/look", //拼接为 /users/look
+      method: "get",
+      description: "获取状态", //该参数可以在api/docs中显示
       handler: async (req, res) => {
-        res.success({ status: "ok" });
+        const user = await db.users.find(req.params.id)
+        res.success(user || { code: 404 })
       }
     }
   ]
 }
 ```
 
-#### 使用方式
+#### 场景二：身份验证（直接式）
 
 ```js
-export default defineConfig({
-  plugins: [
-    createAdvanceApi({
-      setup: ({ _, axios, uuid }) => [
-        {
-          type: "object", // 定义路由的类型
-          base: "/software", // 模块基础路径
-          apis: [
-            {
-              path: "/status", // 路由路径
-              method: "get", // HTTP 方法
-              handler: async (req, res) => {
-                res.success({ status: "ok" });
-              },
-            },
-          ],
-        },
-      ],
-    }),
-  ],
-});
-```
-
-### 2. 直接路由模式（`direct`）
-
-此模式适用于需要更加灵活的路由配置，可以直接在 `setup` 函数中注册路由。
-
-```ts
 {
-  type: "direct", // 路由类型
-  base: "/auth", // 模块基础路径
+  type: "direct",
+  base: "/auth",
   setup: (router) => {
-    // 登录路由
-    router.post("/login", async (req, res) => {
-      res.success({ token: "xxx" });
-    });
-  },
+  // 使用express的router对象直接进行编写
+    router.get('/logout', (req, res) => {
+      clearSession(req)
+      res.success(null)
+    }),'描述,'   // 第三个参数为接口描述
+  }
 }
 ```
 
-### 3. `defineRoutes` 工具函数
+![image.png](https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/3f83b36112b647f2b39a6a2d6d715ca9~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgX2FkdmFuY2U=:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMjQyMzc5MjYzMTU1MTI3MiJ9&rk3s=e9ecf3d6&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1740216580&x-orig-sign=8yz%2BM6Rw3a4HO77TBVoKrC5IqAw%3D)
+
+#### 场景三：商品模块（声明式）
 
 通过 `defineRoutes` 函数，可以直接在 `setup` 函数中定义路由，简化代码结构。
 
@@ -238,20 +228,13 @@ setup: ({ defineRoutes }) => {
 
 ---
 
-## 完整示例
+#### 完整示例
 
 以下是一个完整的使用示例，展示了如何在插件中定义不同的路由模式及其逻辑。
 
-```js
-import { fileURLToPath } from "node:url";
-import vue from "@vitejs/plugin-vue";
-import vueJsx from "@vitejs/plugin-vue-jsx";
-import UnoCSS from "unocss/vite";
-import AutoImport from "unplugin-auto-import/vite";
+```ts
 // vite.config.js
 import { defineConfig } from "vite";
-import vueDevTools from "vite-plugin-vue-devtools";
-
 import { createAdvanceApi } from "vite-advance-api";
 
 // https://vite.dev/config/
@@ -265,6 +248,7 @@ export default defineConfig({
           base: "/software", // 模块基础路径
           apis: [
             {
+              description: "获取状态",
               path: "/status", // 路由路径
               method: "get", // HTTP 方法
               handler: async (req, res) => {
@@ -300,56 +284,19 @@ export default defineConfig({
 });
 ```
 
----
+## 🛠️ 开发者工具箱
 
-## 统一响应格式
-
-Vite Advance API 提供了统一的响应格式，确保前后端数据的一致性。
-
-### 成功响应
+### 1. 智能路由监控
 
 ```ts
-res.success(data, message?, code?)
-// 示例：
-{
-  code: 200,
-  data: { ... },
-  success: true,
-  message: "操作成功"
-}
+setup: ({ printRoutes }) => {
+  // 控制台输出示例：
+  // GET    /api/users/:id
+  // POST   /api/users
+  // POST   /api/auth/login
+  printRoutes({ colorize: true });
+};
 ```
-
-### 错误响应
-
-```ts
-res.error(data, message?, code?)
-// 示例：
-{
-  code: 400,
-  data: null,
-  success: false,
-  message: "操作失败"
-}
-```
-
-### 无权限响应
-
-```ts
-res.denied(data, message?)
-// 示例：
-{
-  code: 401,
-  data: null,
-  success: false,
-  message: "无权限访问"
-}
-```
-
----
-
-## 路由管理工具
-
-插件提供了两个实用的路由管理方法：
 
 ```ts
 setup: ({ getRoutes, printRoutes }) => {
@@ -366,121 +313,58 @@ setup: ({ getRoutes, printRoutes }) => {
 };
 ```
 
-## 配置
+### 2. 响应规范大全
 
 ```js
-interface CreateAdvanceApiOptions {
-  /**
-   * API 前缀，默认为 `/api`
-   * 用于指定所有 API 路由的基础路径。
-   */
-  prefix?: string;
+// 成功响应
+res.success(data, 201);
 
-  /**
-   * CORS 配置，默认为 `{ origin: '*' }`
-   * 可自定义跨域请求的配置，支持 `origin`, `credentials`, `methods` 等选项。
-   */
-  cors?: CorsOptions;
+// 错误响应
+res.error("参数错误", 400);
 
-  /**
-   * `setup` 函数用于定义路由
-   * 该函数接收一个工具对象，并返回一个模块配置（或多个模块配置）。
-   *
-   * @param utils 工具对象，包含了常用工具库和方法，如 `axios`, `uuid`, `lodash` 等
-   */
-  setup?: (utils: Utils) => ModuleConfig[];
-}
+// 权限拒绝
+res.denied("需要管理员权限");
 
+// 自定义响应
+res.custom(418, { message: "我是茶壶" });
 ```
+
+---
+
+## 🚨 避坑指南
+
+1.  **生产环境必做**
+
+```diff
++ cors: { origin: ['https://your-domain.com'] }
+- cors: { origin: '*' }
+```
+
+2.  **中间件顺序陷阱**
 
 ```js
-import { Request, Response, Router } from "express";
-import { CorsOptions } from "cors";
-import { CommonResponse } from "./response";
-import axios from "axios";
-import { AxiosInstance } from "axios";
-
-// 自定义请求和响应类型
-export interface ApiRequest extends Request {
-  // 可以在这里扩展请求类型
-}
-
-// 路由处理器类型
-export type RouteHandler = (
-  req: ApiRequest,
-  res: CommonResponse
-) => void | Promise<void>;
-
-// 1. 对象模式的类型
-export interface ApiConfig {
-  path: string;
-  method: "get" | "post" | "put" | "delete";
-  handler: RouteHandler;
-}
-
-export interface ObjectModeModule {
-  type: "object";
-  base: string;
-  apis: ApiConfig[];
-}
-
-// 2. 路由组模式的类型
-export interface RouteDefinition {
-  path: string;
-  method: "get" | "post" | "put" | "delete";
-  handler: RouteHandler;
-}
-
-// 3. 直接路由模式的类型
-export interface RouterDefiner {
-  get: (path: string, handler: RouteHandler) => void;
-  post: (path: string, handler: RouteHandler) => void;
-  put: (path: string, handler: RouteHandler) => void;
-  delete: (path: string, handler: RouteHandler) => void;
-}
-
-export interface DirectModeModule {
-  type: "direct";
-  base: string;
-  setup: (router: RouterDefiner) => void;
-}
-
-// 核心工具集合
-export interface Utils {
-  router: Router;
-  uuid: () => string;
-  _: {
-    pick: <T>(obj: T, paths: string[]) => Partial<T>;
-    omit: <T>(obj: T, paths: string[]) => Partial<T>;
-    get: (obj: any, path: string, defaultValue?: any) => any;
-  };
-  axios: AxiosInstance;
-  defineRoutes: (base?: string, routes: RouteDefinition[]) => ModuleConfig;
-  getRoutes: () => Array<{ method: string; path: string; moduleName?: string }>;
-  printRoutes: () => void;
-}
-
-export interface CreateAdvanceApiOptions {
-  prefix?: string; // 只保留 prefix 配置
-  cors?: CorsOptions;
-  setup?: (utils: Utils) => ModuleConfig[];
-}
-
-// 添加API文档相关的类型定义
-export interface ApiDoc {
-  title: string; // API标题
-  description?: string; // API描述
-  params?: Record<string, string>; // 参数说明
-  response?: Record<string, any>; // 返回值示例
-}
-
-// 模块文档
-export interface ModuleDoc {
-  name: string; // 模块名称
-  description?: string; // 模块描述
-}
-
-// 模块类型联合
-export type ModuleConfig = ObjectModeModule | DirectModeModule;
-
+// 正确顺序！
+app.use(express.json());
+app.use(yourMiddleware);
+app.use(router);
 ```
+
+---
+
+## 🌈 生态展望
+
+**Roadmap 预告**：
+
+- [ ] 自动生成 Swagger 文档
+- [ ] 内置 Redis 状态存储
+- [ ] 接口 Mock 系统
+- [ ] 请求限流中间件
+
+---
+
+**立即体验 Node 接口开发** 👇\
+**问题反馈**：[提交 Issue](https://github.com/LiCHUYA/vite-advance-API/issues)\
+**贡献指南**：[CONTRIBUTING.md](https://github.com/LiCHUYA/vite-advance-API/blob/master/CONTRIBUTING.md)
+
+**留下你的思考** 💡：\
+你在开发 Node 接口时遇到过哪些痛点？期待本插件增加哪些功能？欢迎评论区讨论！

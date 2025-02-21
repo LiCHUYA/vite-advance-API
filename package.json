@@ -1,6 +1,6 @@
 {
   "name": "vite-advance-api",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Advanced API plugin for Vite with multiple routing styles",
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.es.js",
@@ -26,6 +26,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^1.3.4",
+    "chalk": "^5.4.1",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",
