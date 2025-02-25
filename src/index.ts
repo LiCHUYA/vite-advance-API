@@ -612,19 +612,37 @@ export function createAdvanceApi(options: CreateAdvanceApiOptions = {}) {
 
       switch (module.type) {
         case "object":
-          module.apis.forEach(({ path, method, handler, description }) => {
-            createRouteHandler(
-              router,
-              method,
-              basePath,
-              path,
-              handler,
-              prefix,
-              routeCollector,
-              moduleName,
-              description
-            );
-          });
+          // 处理 apis 写法
+          if (module.apis) {
+            module.apis.forEach(({ path, method, handler }) => {
+              createRouteHandler(
+                router,
+                method,
+                basePath,
+                path,
+                handler,
+                prefix,
+                routeCollector,
+                moduleName
+              );
+            });
+          }
+          // 处理 routes 写法
+          if (module.routes) {
+            module.routes.forEach(({ path, method, handler, description }) => {
+              createRouteHandler(
+                router,
+                method,
+                basePath,
+                path,
+                handler,
+                prefix,
+                routeCollector,
+                moduleName,
+                description
+              );
+            });
+          }
           break;
 
         case "direct":

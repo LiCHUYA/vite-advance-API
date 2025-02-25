@@ -32,7 +32,8 @@ export interface ApiConfig {
 export interface ObjectModeModule {
   type: "object";
   base: string;
-  apis: ApiConfig[];
+  apis?: ApiConfig[]; // 支持 apis 写法
+  routes?: RouteDefinition[]; // 支持 routes 写法
 }
 
 // 2. 路由组模式的类型

@@ -257,6 +257,22 @@ export default defineConfig({
             },
           ],
         },
+        //方式一
+        {
+          type: "object", // 定义路由的类型
+          base: "/software", // 模块基础路径
+          //键可以是 routes 也可以是 apis
+          routes: [
+            {
+              description: "获取状态",
+              path: "/status", // 路由路径
+              method: "get", // HTTP 方法
+              handler: async (req, res) => {
+                res.success({ status: "ok" });
+              },
+            },
+          ],
+        },
         //方式二
         {
           type: "direct", // 路由类型
